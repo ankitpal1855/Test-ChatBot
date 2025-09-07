@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Chatbot</title>
   <style>
     body {
@@ -36,36 +36,12 @@
       border-radius: 8px;
       max-width: 80%;
     }
-    .user {
-      background: #007bff;
-      color: #fff;
-      margin-left: auto;
-    }
-    .bot {
-      background: #e9ecef;
-      margin-right: auto;
-    }
-    #inputArea {
-      display: flex;
-      gap: 5px;
-    }
-    #chatInput {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-    button {
-      padding: 10px 15px;
-      border: none;
-      background: #007bff;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
+    .user { background: #007bff; color: #fff; margin-left: auto; }
+    .bot { background: #e9ecef; margin-right: auto; }
+    #inputArea { display: flex; gap: 5px; }
+    #chatInput { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+    button { padding: 10px 15px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #0056b3; }
   </style>
 </head>
 <body>
@@ -73,47 +49,61 @@
     <div id="messages"></div>
     <div id="inputArea">
       <input id="chatInput" placeholder="Type a message..." />
-      <button onclick="sendMessage()">Send</button>
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 
   <script>
-async function sendMessage() {
-  const input = document.getElementById("chatInput");
-  const message = input.value.trim();
-  if (!message) return;
+    const webhookUrl = "https://unrivaled-faloodeh-7b1690.netlify.app/.netlify/functions/proxy";
 
-  addMessage(message, "user");
-  input.value = "";
+    const messagesDiv = document.getElementById("messages");
+    const inputField = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
 
-  try {
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ chatInput: message })
+    sendBtn.addEventListener("click", sendMessage);
+    inputField.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") sendMessage();
     });
 
-    const data = await res.json();
-    console.log("Webhook returned:", data);
-
-    let botReply = "⚠️ No reply";
-
-    // Check multiple possible structures
-    if (data.response) {
-      botReply = data.response;          // simple JSON {response: "..."}
-    } else if (Array.isArray(data) && data[0]?.json?.response) {
-      botReply = data[0].json.response;  // n8n array format
-    } else if (data[0]?.response) {
-      botReply = data[0].response;       // sometimes array of objects
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.className = `msg ${sender}`;
+      msg.textContent = text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 
-    addMessage(botReply, "bot");
+    async function sendMessage() {
+      const message = inputField.value.trim();
+      if (!message) return;
 
-  } catch (err) {
-    addMessage("⚠️ Error talking to bot", "bot");
-    console.error(err);
-  }
-}
-</script>
+      addMessage(message, "user");
+      inputField.value = "";
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatInput: message })
+        });
+
+        const data = await res.json();
+        console.log("Webhook returned:", data);
+
+        let botReply = "⚠️ No reply";
+
+        // Handle multiple formats
+        if (data.response) botReply = data.response;
+        else if (Array.isArray(data) && data[0]?.json?.response) botReply = data[0].json.response;
+        else if (Array.isArray(data) && data[0]?.response) botReply = data[0].response;
+
+        addMessage(botReply, "bot");
+
+      } catch (err) {
+        console.error(err);
+        addMessage("⚠️ Error talking to bot", "bot");
+      }
+    }
+  </script>
 </body>
 </html>
