@@ -14,6 +14,32 @@
   <button onclick="sendMessage()">Send</button>
 
   <script>
+  // Generate a random sessionId once per visitor
+  const sessionId = "user-" + Math.random().toString(36).substring(2, 9);
+
+  async function sendMessage() {
+    const userInput = document.getElementById("userInput").value;
+
+    const payload = {
+      sessionId: sessionId,   // ✅ sent to n8n
+      message: userInput
+    };
+
+    const res = await fetch("/.netlify/functions/proxy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    console.log("AI reply:", data);
+
+    // show reply in page (optional)
+    document.getElementById("reply").innerText = data.reply || JSON.stringify(data);
+  }
+
+
+    /*
     async function sendMessage() {
       const input = document.getElementById('userInput').value;
       if (!input) return;
@@ -30,7 +56,10 @@
       document.getElementById('chatbox').innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
       document.getElementById('userInput').value = '';
       document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
-    }
+    } */
   </script>
+  <input id="userInput" type="text" placeholder="Type your message">
+<button onclick="sendMessage()">Send</button>
+<p id="reply"></p>
 </body>
 </html>
