@@ -86,7 +86,6 @@
       const message = input.value.trim();
       if (!message) return;
 
-      // Show user message
       addMessage(message, "user");
       input.value = "";
 
@@ -99,18 +98,22 @@
 
         const data = await res.json();
         console.log("Webhook returned:", data);
-        addMessage(data.response || "⚠️ No reply", "bot");
+
+        // Extract bot reply from n8n array format
+        const botReply = data?.[0]?.json?.response || "⚠️ No reply";
+        addMessage(botReply, "bot");
+
       } catch (err) {
         addMessage("⚠️ Error talking to bot", "bot");
         console.error(err);
       }
     }
 
-    function addMessage(response, sender) {
+    function addMessage(text, sender) {
       const messagesDiv = document.getElementById("messages");
       const msg = document.createElement("div");
       msg.classList.add("msg", sender);
-      msg.textContent = response;
+      msg.textContent = text;
       messagesDiv.appendChild(msg);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
