@@ -98,7 +98,7 @@
         });
 
         const data = await res.json();
-        addMessage(data.text || "⚠️ No reply", "bot");
+        addMessage(data.response || "⚠️ No reply", "bot");
       } catch (err) {
         addMessage("⚠️ Error talking to bot", "bot");
         console.error(err);
