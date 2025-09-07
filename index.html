@@ -98,6 +98,7 @@
         });
 
         const data = await res.json();
+        console.log("Webhook returned:", data);
         addMessage(data.response || "⚠️ No reply", "bot");
       } catch (err) {
         addMessage("⚠️ Error talking to bot", "bot");
