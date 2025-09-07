@@ -22,7 +22,7 @@
 
     const payload = {
       sessionId: sessionId,   // ✅ sent to n8n
-      message: userInput
+      chatInput: userInput
     };
 
     const res = await fetch("/.netlify/functions/proxy", {
