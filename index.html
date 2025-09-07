@@ -1,63 +1,118 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Chatbot</title>
   <style>
-    #chatbox { width: 400px; height: 500px; border: 1px solid #ccc; padding: 10px; overflow-y: auto; }
-    #userInput { width: 300px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #chatbox {
+      width: 400px;
+      max-width: 95%;
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #messages {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fafafa;
+    }
+    .msg {
+      margin: 5px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      max-width: 80%;
+    }
+    .user {
+      background: #007bff;
+      color: #fff;
+      margin-left: auto;
+    }
+    .bot {
+      background: #e9ecef;
+      margin-right: auto;
+    }
+    #inputArea {
+      display: flex;
+      gap: 5px;
+    }
+    #chatInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
-  <h2>My AI Chatbot</h2>
-  <div id="chatbox"></div>
-  <input type="text" id="userInput" placeholder="Type your message"/>
-  <button onclick="sendMessage()">Send</button>
+  <div id="chatbox">
+    <div id="messages"></div>
+    <div id="inputArea">
+      <input id="chatInput" placeholder="Type a message..." />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
 
   <script>
-  // Generate a random sessionId once per visitor
-  const sessionId = "user-" + Math.random().toString(36).substring(2, 9);
+    const webhookUrl = "https://unrivaled-faloodeh-7b1690.netlify.app/.netlify/functions/proxy"; 
+    // 👆 Replace with your deployed proxy URL
 
-  async function sendMessage() {
-    const userInput = document.getElementById("userInput").value;
-
-    const payload = {
-      sessionId: sessionId,   // ✅ sent to n8n
-      chatInput: userInput
-    };
-
-    const res = await fetch("/.netlify/functions/proxy", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-    console.log("AI reply:", data);
-
-    // show reply in page (optional)
-    document.getElementById("reply").innerText = data.reply || JSON.stringify(data);
-  }
-
-
-    /*
     async function sendMessage() {
-      const input = document.getElementById('userInput').value;
-      if (!input) return;
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+      if (!message) return;
 
-      document.getElementById('chatbox').innerHTML += `<div><b>You:</b> ${input}</div>`;
+      // Show user message
+      addMessage(message, "user");
+      input.value = "";
 
-      const response = await fetch("/.netlify/functions/proxy", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ message: userMessage })
-});
-      const data = await response.json();
+      try {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatInput: message })
+        });
 
-      document.getElementById('chatbox').innerHTML += `<div><b>Bot:</b> ${data.reply}</div>`;
-      document.getElementById('userInput').value = '';
-      document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
-    } */
+        const data = await res.json();
+        addMessage(data.text || "⚠️ No reply", "bot");
+      } catch (err) {
+        addMessage("⚠️ Error talking to bot", "bot");
+        console.error(err);
+      }
+    }
+
+    function addMessage(text, sender) {
+      const messagesDiv = document.getElementById("messages");
+      const msg = document.createElement("div");
+      msg.classList.add("msg", sender);
+      msg.textContent = text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
   </script>
-  
 </body>
 </html>
