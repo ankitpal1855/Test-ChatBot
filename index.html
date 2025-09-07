@@ -78,45 +78,42 @@
   </div>
 
   <script>
-    const webhookUrl = "https://unrivaled-faloodeh-7b1690.netlify.app/.netlify/functions/proxy"; 
-    // 👆 Replace with your deployed proxy URL
+async function sendMessage() {
+  const input = document.getElementById("chatInput");
+  const message = input.value.trim();
+  if (!message) return;
 
-    async function sendMessage() {
-      const input = document.getElementById("chatInput");
-      const message = input.value.trim();
-      if (!message) return;
+  addMessage(message, "user");
+  input.value = "";
 
-      addMessage(message, "user");
-      input.value = "";
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chatInput: message })
+    });
 
-      try {
-        const res = await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ chatInput: message })
-        });
+    const data = await res.json();
+    console.log("Webhook returned:", data);
 
-        const data = await res.json();
-        console.log("Webhook returned:", data);
+    let botReply = "⚠️ No reply";
 
-        // Extract bot reply from n8n array format
-        const botReply = data?.[0]?.json?.response || "⚠️ No reply";
-        addMessage(botReply, "bot");
-
-      } catch (err) {
-        addMessage("⚠️ Error talking to bot", "bot");
-        console.error(err);
-      }
+    // Check multiple possible structures
+    if (data.response) {
+      botReply = data.response;          // simple JSON {response: "..."}
+    } else if (Array.isArray(data) && data[0]?.json?.response) {
+      botReply = data[0].json.response;  // n8n array format
+    } else if (data[0]?.response) {
+      botReply = data[0].response;       // sometimes array of objects
     }
 
-    function addMessage(text, sender) {
-      const messagesDiv = document.getElementById("messages");
-      const msg = document.createElement("div");
-      msg.classList.add("msg", sender);
-      msg.textContent = text;
-      messagesDiv.appendChild(msg);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-  </script>
+    addMessage(botReply, "bot");
+
+  } catch (err) {
+    addMessage("⚠️ Error talking to bot", "bot");
+    console.error(err);
+  }
+}
+</script>
 </body>
 </html>
