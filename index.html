@@ -106,11 +106,11 @@
       }
     }
 
-    function addMessage(text, sender) {
+    function addMessage(response, sender) {
       const messagesDiv = document.getElementById("messages");
       const msg = document.createElement("div");
       msg.classList.add("msg", sender);
-      msg.textContent = text;
+      msg.textContent = response;
       messagesDiv.appendChild(msg);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
