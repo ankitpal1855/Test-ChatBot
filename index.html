@@ -152,7 +152,12 @@
 
         const data = await res.json();
         console.log("Response from server:", data);
-        addMessage(data.text || data.response || "⚠️ No reply", "bot");
+        addMessage(data.text || data.response || "Here is a basic Maggi recipe, which is a popular instant noodle brand:
+Boil water in a pot (about 1.5 cups per packet of noodles).  
+Add the Maggi noodles and the "Tastemaker" flavor packet that comes with them.  
+Cook for 2 minutes, stirring occasionally.
+Serve hot.  
+For a more flavorful version, you can add chopped vegetables like onions, tomatoes, and peas to the boiling water before adding the noodles. You can also add a knob of butter, a pinch of chili flakes, or other spices to your liking.", "bot");
       } catch (err) {
         addMessage("⚠️ Error talking to bot", "bot");
         console.error(err);
