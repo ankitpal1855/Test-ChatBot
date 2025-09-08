@@ -9,28 +9,9 @@
       font-family: Arial, sans-serif;
       background: #f4f4f9;
       display: flex;
-      flex-direction: column; /* Changed to column for header and chatbox */
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0; /* Remove default body margin */
-    }
-    #header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 20px;
-      padding: 10px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    #header img {
-      height: 50px; /* Adjust logo size as needed */
-      margin-right: 10px;
-    }
-    #header h1 {
-      margin: 0;
-      color: #333;
     }
     #chatbox {
       width: 400px;
@@ -39,12 +20,9 @@
       border-radius: 10px;
       padding: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      display: flex; /* Make chatbox a flex container */
-      flex-direction: column; /* Arrange content in a column */
     }
     #messages {
-      flex-grow: 1; /* Allow messages to take available height */
-      height: 300px; /* Base height, will expand on mobile */
+      height: 300px;
       overflow-y: auto;
       border: 1px solid #ddd;
       border-radius: 5px;
@@ -88,40 +66,9 @@
     button:hover {
       background: #0056b3;
     }
-
-    /* Mobile responsiveness */
-    @media (max-width: 600px) {
-      body {
-        height: 90vh; /* Ensure full viewport height */
-        justify-content: flex-start; /* Align content to the top */
-        padding-top: 20px; /* Add some padding at the top */
-      }
-      #chatbox {
-        width: 100%; /* Full width on mobile */
-        max-width: 100%;
-        height: calc(100vh - 120px); /* Adjust height to fill screen minus header and some margin */
-        border-radius: 0; /* Remove border radius for full screen effect */
-        box-shadow: none; /* Remove shadow for full screen effect */
-        padding: 10px;
-      }
-      #messages {
-        height: auto; /* Let content define height */
-        flex-grow: 1; /* Allow messages to take all available space */
-        min-height: 200px; /* Ensure a minimum height for messages */
-      }
-      #header {
-        width: 95%;
-        border-radius: 0;
-        box-shadow: none;
-      }
-    }
   </style>
 </head>
 <body>
-  <div id="header">
-    <img src="logo.jpg" alt="MyCook Logo"/>
-    <h1>MyCook</h1>
-  </div>
   <div id="chatbox">
     <div id="messages"></div>
     <div id="inputArea">
@@ -151,13 +98,7 @@
         });
 
         const data = await res.json();
-        console.log("Response from server:", data);
-        addMessage(data.text || data.response || "Here is a basic Maggi recipe, which is a popular instant noodle brand:
-Boil water in a pot (about 1.5 cups per packet of noodles).  
-Add the Maggi noodles and the "Tastemaker" flavor packet that comes with them.  
-Cook for 2 minutes, stirring occasionally.
-Serve hot.  
-For a more flavorful version, you can add chopped vegetables like onions, tomatoes, and peas to the boiling water before adding the noodles. You can also add a knob of butter, a pinch of chili flakes, or other spices to your liking.", "bot");
+        addMessage(data.text || "⚠️ No reply", "bot");
       } catch (err) {
         addMessage("⚠️ Error talking to bot", "bot");
         console.error(err);
