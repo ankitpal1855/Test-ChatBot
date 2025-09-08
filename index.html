@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AI Chatbot</title>
   <style>
     body {
@@ -36,12 +36,36 @@
       border-radius: 8px;
       max-width: 80%;
     }
-    .user { background: #007bff; color: #fff; margin-left: auto; }
-    .bot { background: #e9ecef; margin-right: auto; }
-    #inputArea { display: flex; gap: 5px; }
-    #chatInput { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-    button { padding: 10px 15px; border: none; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #0056b3; }
+    .user {
+      background: #007bff;
+      color: #fff;
+      margin-left: auto;
+    }
+    .bot {
+      background: #e9ecef;
+      margin-right: auto;
+    }
+    #inputArea {
+      display: flex;
+      gap: 5px;
+    }
+    #chatInput {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
@@ -49,24 +73,49 @@
     <div id="messages"></div>
     <div id="inputArea">
       <input id="chatInput" placeholder="Type a message..." />
-      <button id="sendBtn">Send</button>
+      <button onclick="sendMessage()">Send</button>
     </div>
   </div>
 
   <script>
-    const webhookUrl = "https://unrivaled-faloodeh-7b1690.netlify.app/.netlify/functions/proxy";
+    const webhookUrl = "https://unrivaled-faloodeh-7b1690.netlify.app/.netlify/functions/proxy"; 
+    // 👆 Replace with your deployed proxy URL
 
-    const messagesDiv = document.getElementById("messages");
-    const inputField = document.getElementById("chatInput");
-    const sendBtn = document.getElementById("sendBtn");
+    async function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const message = input.value.trim();
+      if (!message) return;
 
-    sendBtn.addEventListener("click", sendMessage);
-    inputField.addEventListener("keypress", function(e) {
-      if (e.key === "Enter") sendMessage();
-    });
+      // Show user message
+      addMessage(message, "user");
+      input.value = "";
+
+      try {
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ chatInput: message })
+        });
+
+        const data = await res.json();
+        addMessage(data.text || "⚠️ No reply", "bot");
+      } catch (err) {
+        addMessage("⚠️ Error talking to bot", "bot");
+        console.error(err);
+      }
+    }
 
     function addMessage(text, sender) {
+      const messagesDiv = document.getElementById("messages");
       const msg = document.createElement("div");
+      msg.classList.add("msg", sender);
+      msg.textContent = text;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+  </script>
+</body>
+</html>      const msg = document.createElement("div");
       msg.className = `msg ${sender}`;
       msg.textContent = text;
       messagesDiv.appendChild(msg);
